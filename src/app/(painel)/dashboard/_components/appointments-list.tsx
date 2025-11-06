@@ -19,6 +19,16 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+// Tipo para compatibilidade com AppointmentForm
+interface AppointmentFormData {
+  id: string;
+  name: string;
+  email: string;
+  appointmentDate: string | Date;
+  time: string;
+  serviceId: string;
+}
+
 interface Appointment {
   id: string;
   name: string;
