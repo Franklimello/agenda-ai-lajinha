@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase-auth";
+import { adminDb } from "@/lib/firebase";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export async function getProfessionalData(userId: string) {

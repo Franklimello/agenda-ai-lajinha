@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/getSession";
-import { adminBucket } from "@/lib/firebase-auth";
+import { adminBucket } from "@/lib/firebase";
 
 export async function POST(request: NextRequest) {
   try {

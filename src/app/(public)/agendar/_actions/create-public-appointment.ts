@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase-auth";
+import { adminDb } from "@/lib/firebase";
 import { revalidatePath } from "next/cache";
 import { calculateTimeSlots, isTimeSlotAvailable } from "../_utils/time-slots";
 

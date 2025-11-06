@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase-auth";
+import { adminDb } from "@/lib/firebase";
 import { getSession } from "@/lib/getSession";
 import { calculateTimeSlots } from "../_utils/time-slots";
 

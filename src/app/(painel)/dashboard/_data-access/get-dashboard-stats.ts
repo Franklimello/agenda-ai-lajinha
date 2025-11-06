@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase-auth";
+import { adminDb } from "@/lib/firebase";
 import { getSession } from "@/lib/getSession";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 import type { DashboardAppointment } from "../_types";

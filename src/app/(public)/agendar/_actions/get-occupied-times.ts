@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase-auth";
+import { adminDb } from "@/lib/firebase";
 import { calculateTimeSlots } from "../_utils/time-slots";
 
 interface GetOccupiedTimesParams {

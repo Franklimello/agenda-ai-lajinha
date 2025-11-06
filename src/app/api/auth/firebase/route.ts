@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getSessionFromToken, createOrUpdateUser } from "@/lib/firebase-auth";
-import { adminAuth } from "@/lib/firebase-auth";
+import { verifyIdToken, adminAuth, createOrUpdateUser } from "@/lib/firebase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,40 +29,25 @@ export async function POST(request: NextRequest) {
     console.log("✅ Firebase Admin está inicializado, verificando token...");
 
     // Verificar token
-    const session = await getSessionFromToken(token);
+    const decodedToken = await verifyIdToken(token);
     
-    if (!session) {
-      console.error("❌ Token inválido ou expirado");
-      return NextResponse.json(
-        { error: "Token inválido ou expirado" },
-        { status: 401 }
-      );
-    }
-
     console.log("✅ Token válido, obtendo dados do usuário...");
 
-    // Obter dados adicionais do usuário (apenas para email)
-    const firebaseUser = await adminAuth.getUser(session.user.id);
+    // Obter dados adicionais do usuário
+    const firebaseUser = await adminAuth!.getUser(decodedToken.uid);
     console.log("✅ Dados do usuário obtidos:", { email: firebaseUser.email, uid: firebaseUser.uid });
     
-    // TEMPORARIAMENTE DESABILITADO: Criar usuário no Firestore
-    // Vamos fazer o login funcionar primeiro, depois resolvemos o Firestore
-    // Isso evita que erros do Firestore bloqueiem o login
-    console.log("⚠️  Pulando criação de usuário no Firestore (temporário)");
-    
-    // TODO: Reativar quando as permissões do Firestore estiverem funcionando
-    /*
+    // Criar ou atualizar usuário no Firestore (sem bloquear se falhar)
     try {
-      await createOrUpdateUser(session.user.id, {
+      await createOrUpdateUser(decodedToken.uid, {
         email: firebaseUser.email,
         emailVerified: firebaseUser.emailVerified,
         createdAt: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
       });
-      console.log("✅ Usuário criado/atualizado no Firestore com sucesso");
-    } catch (firestoreError: any) {
-      console.error("⚠️  Erro ao criar/atualizar usuário no Firestore:", firestoreError);
+      console.log("✅ Usuário criado/atualizado no Firestore");
+    } catch (error) {
+      console.error("⚠️  Erro ao criar usuário no Firestore (continuando):", error);
     }
-    */
 
     console.log("🔵 Salvando cookies...");
     // Salvar token no cookie
@@ -76,7 +60,7 @@ export async function POST(request: NextRequest) {
     });
     
     // Salvar também o userId para fallback caso token expire
-    cookieStore.set("firebase-user-id", session.user.id, {
+    cookieStore.set("firebase-user-id", decodedToken.uid, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -86,7 +70,12 @@ export async function POST(request: NextRequest) {
     console.log("✅ Login concluído com sucesso!");
     return NextResponse.json({
       success: true,
-      user: session.user,
+      user: {
+        id: decodedToken.uid,
+        email: firebaseUser.email || "",
+        name: firebaseUser.displayName || null,
+        image: firebaseUser.photoURL || null,
+      },
     });
   } catch (error: any) {
     console.error("❌ ERRO CRÍTICO ao autenticar:", error);
