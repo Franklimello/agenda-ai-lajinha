@@ -203,7 +203,8 @@ export async function getReminders() {
       });
 
     // Converter ReminderData[] para Reminder[] (compatível com o componente)
-    const remindersForComponent: Reminder[] = reminders.map((r) => ({
+    // ReminderData já tem a mesma estrutura que Reminder, então podemos fazer cast direto
+    const remindersForComponent = reminders.map((r): Reminder => ({
       id: r.id,
       description: r.description,
       userId: r.userId,
