@@ -6,6 +6,8 @@ import { ServicesList } from "./_components/services-list";
 import { getUserSubscription } from "../plans/_data-access/get-plans";
 import { SubscriptionBlock } from "../_components/subscription-block";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Service() {
   const session = await getSession();
 

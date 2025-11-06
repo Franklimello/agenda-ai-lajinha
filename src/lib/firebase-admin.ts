@@ -9,7 +9,14 @@ if (getApps().length === 0) {
   
   // Opção 1: Usar variável de ambiente (recomendado para produção)
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    try {
+      // Remover espaços e quebras de linha extras
+      const cleanJson = process.env.FIREBASE_SERVICE_ACCOUNT.trim().replace(/\n/g, '\\n');
+      serviceAccount = JSON.parse(cleanJson);
+    } catch (error) {
+      console.error("❌ Erro ao fazer parse do FIREBASE_SERVICE_ACCOUNT:", error);
+      serviceAccount = null;
+    }
   }
   // Opção 2: Usar arquivo local (desenvolvimento)
   else {

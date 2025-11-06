@@ -14,6 +14,10 @@ if (getApps().length === 0) {
     try {
       let cleanJson = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
       
+      // Remover caracteres de controle (exceto \n, \r, \t que são válidos em JSON)
+      // Caracteres de controle são 0x00-0x1F exceto os válidos
+      cleanJson = cleanJson.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+      
       // Se o JSON está como string JSON (começa com "{")
       if (cleanJson.startsWith('{')) {
         // Tentar parse direto

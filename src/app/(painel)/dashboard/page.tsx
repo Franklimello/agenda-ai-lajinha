@@ -9,6 +9,8 @@ import { getUserSubscription } from "./plans/_data-access/get-plans";
 import { PlanCard } from "./_components/plan-card";
 import { checkOnboardingStatus } from "./_utils/check-onboarding";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
   const session = await getSession();
   if (!session) {

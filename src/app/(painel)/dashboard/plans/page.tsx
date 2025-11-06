@@ -4,6 +4,8 @@ import { getUserSubscription } from "./_data-access/get-plans";
 import { PlansContent } from "./_components/plans-content";
 import { checkOnboardingStatus } from "../_utils/check-onboarding";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Plans() {
   const session = await getSession();
 

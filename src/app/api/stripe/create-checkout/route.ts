@@ -3,9 +3,18 @@ import Stripe from "stripe";
 import { getSession } from "@/lib/getSession";
 import { adminDb } from "@/lib/firebase-auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
 export async function POST(request: NextRequest) {
+  if (!stripe) {
+    return NextResponse.json(
+      { error: "Stripe não configurado" },
+      { status: 500 }
+    );
+  }
+
   try {
     const session = await getSession();
 

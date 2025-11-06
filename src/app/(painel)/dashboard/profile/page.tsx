@@ -6,6 +6,7 @@ import { getUserSubscription } from "../plans/_data-access/get-plans"
 import { SubscriptionBlock } from "../_components/subscription-block"
 import { checkOnboardingStatus } from "../_utils/check-onboarding"
 
+export const dynamic = 'force-dynamic';
 
 export default async  function Profile(){
 
