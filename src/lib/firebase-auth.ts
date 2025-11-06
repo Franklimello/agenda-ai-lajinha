@@ -11,12 +11,59 @@ if (getApps().length === 0) {
   let serviceAccount;
   
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-  } else {
+    try {
+      let cleanJson = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
+      
+      // Se o JSON está como string JSON (começa com "{")
+      if (cleanJson.startsWith('{')) {
+        // Tentar parse direto
+        try {
+          serviceAccount = JSON.parse(cleanJson);
+        } catch (e) {
+          // Se falhar, pode estar com escapes incorretos
+          // Tentar corrigir escapes comuns
+          cleanJson = cleanJson
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+          serviceAccount = JSON.parse(cleanJson);
+        }
+      } else {
+        // Se não começa com "{", pode estar duplamente escapado
+        // Tentar fazer unescape primeiro
+        try {
+          cleanJson = JSON.parse(`"${cleanJson}"`); // Unescape da string
+          serviceAccount = JSON.parse(cleanJson);
+        } catch (e) {
+          // Última tentativa: tratar como string literal
+          cleanJson = cleanJson
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+          serviceAccount = JSON.parse(cleanJson);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Erro ao fazer parse do FIREBASE_SERVICE_ACCOUNT:", error instanceof Error ? error.message : String(error));
+      console.error("Tentando usar arquivo local...");
+      serviceAccount = null; // Continuar para tentar arquivo local
+    }
+  }
+  
+  if (!serviceAccount) {
     const credPath = join(process.cwd(), "firebase-service-account.json");
     if (existsSync(credPath)) {
-      const fileContent = readFileSync(credPath, "utf-8");
-      serviceAccount = JSON.parse(fileContent);
+      try {
+        const fileContent = readFileSync(credPath, "utf-8");
+        serviceAccount = JSON.parse(fileContent);
+      } catch (error) {
+        console.error("❌ Erro ao fazer parse do firebase-service-account.json:", error);
+        serviceAccount = null;
+      }
     } else {
       // Modo temporário: usar credenciais do projeto atual
       // Você precisa substituir isso pelo arquivo real do Service Account
