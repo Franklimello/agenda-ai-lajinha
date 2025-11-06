@@ -25,9 +25,10 @@ Isso significa que o domínio do seu site (ex: `agenda-ai-lajinha-r6zv51pys.verc
 2. Adicione os seguintes domínios:
 
 #### Domínios do Vercel:
-- `agenda-ai-lajinha-r6zv51pys.vercel.app` (domínio de preview)
+- `agenda-ai-lajinha-d2omnxyzg.vercel.app` (domínio de preview atual)
+- `agenda-ai-lajinha-r6zv51pys.vercel.app` (domínio de preview anterior)
 - `agenda-ai-lajinha.vercel.app` (domínio de produção, se aplicável)
-- `*.vercel.app` (para aceitar todos os subdomínios do Vercel - opcional)
+- `*.vercel.app` (para aceitar todos os subdomínios do Vercel - **RECOMENDADO**)
 
 #### Domínio de Produção (se tiver):
 - Seu domínio customizado (ex: `seusite.com`)

@@ -197,8 +197,8 @@ export async function getUserFromFirestore(userId: string) {
 export async function createOrUpdateUser(userId: string, userData: any) {
   try {
     if (!adminDb) {
-      console.error("Firebase Admin não está configurado. Adicione firebase-service-account.json");
-      return false;
+      console.error("❌ Firebase Admin não está configurado. Adicione firebase-service-account.json");
+      throw new Error("Firebase Admin não está configurado");
     }
     
     // Verificar se o usuário já existe
@@ -244,10 +244,22 @@ export async function createOrUpdateUser(userId: string, userData: any) {
       updateData,
       { merge: true }
     );
+    console.log("✅ Usuário criado/atualizado no Firestore com sucesso");
     return true;
-  } catch (error) {
-    console.error("Erro ao criar/atualizar usuário:", error);
-    return false;
+  } catch (error: any) {
+    console.error("❌ Erro ao criar/atualizar usuário no Firestore:", error);
+    console.error("❌ Detalhes do erro:", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+    });
+    
+    // Se for erro de autenticação, lançar erro específico
+    if (error?.code === 16 || error?.message?.includes("UNAUTHENTICATED")) {
+      throw new Error("Firestore não autenticado. Verifique as permissões do Service Account no Google Cloud IAM.");
+    }
+    
+    throw error;
   }
 }
 

@@ -39,12 +39,19 @@ export async function POST(request: NextRequest) {
     
     // Criar ou atualizar usuário no Firestore
     // NÃO salvar dados do Google (name, image) - profissional deve preencher manualmente
-    await createOrUpdateUser(session.user.id, {
-      email: firebaseUser.email, // Apenas email para identificação
-      // name, image e outros campos devem ser preenchidos pelo profissional no perfil
-      emailVerified: firebaseUser.emailVerified,
-      createdAt: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
-    });
+    try {
+      await createOrUpdateUser(session.user.id, {
+        email: firebaseUser.email, // Apenas email para identificação
+        // name, image e outros campos devem ser preenchidos pelo profissional no perfil
+        emailVerified: firebaseUser.emailVerified,
+        createdAt: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
+      });
+    } catch (firestoreError: any) {
+      // Se houver erro ao criar/atualizar no Firestore, logar mas não bloquear o login
+      console.error("⚠️  Erro ao criar/atualizar usuário no Firestore, mas continuando com o login:", firestoreError);
+      // Continuar com o login mesmo se não conseguir salvar no Firestore
+      // O usuário pode ser criado manualmente depois ou na próxima tentativa
+    }
 
     // Salvar token no cookie
     const cookieStore = await cookies();
