@@ -9,6 +9,14 @@ interface CreateReminderData {
   description: string;
 }
 
+interface ReminderData {
+  id: string;
+  description: string;
+  userId: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 interface UpdateReminderData extends CreateReminderData {
   id: string;
 }
@@ -168,7 +176,7 @@ export async function getReminders() {
       .where("userId", "==", session.user.id)
       .get();
 
-    const reminders = remindersSnapshot.docs
+    const reminders: ReminderData[] = remindersSnapshot.docs
       .map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         return {
@@ -187,7 +195,7 @@ export async function getReminders() {
             : null,
         };
       })
-      .sort((a, b) => {
+      .sort((a: ReminderData, b: ReminderData) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
         return dateB.getTime() - dateA.getTime(); // Descendente
