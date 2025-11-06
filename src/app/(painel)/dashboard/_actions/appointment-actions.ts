@@ -289,10 +289,11 @@ export async function updateAppointment(data: UpdateAppointmentData) {
       updatedAt: new Date(),
     });
 
+    const appointmentData = appointmentDoc.data();
     const updatedData = {
-      id: appointmentDoc.id,
-      ...appointmentDoc.data(),
+      ...appointmentData,
       ...data,
+      id: appointmentDoc.id,
       appointmentDate: appointmentDate,
       service: serviceData,
       updatedAt: new Date(),
