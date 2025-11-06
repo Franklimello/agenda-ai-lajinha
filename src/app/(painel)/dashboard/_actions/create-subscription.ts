@@ -21,6 +21,13 @@ export async function createSubscription(data: CreateSubscriptionData) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se já existe subscription
     const existingSubscriptionDoc = await adminDb.collection("subscriptions")
       .where("userId", "==", data.userId)

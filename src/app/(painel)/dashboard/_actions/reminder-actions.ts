@@ -150,6 +150,13 @@ export async function deleteReminder(reminderId: string) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o lembrete pertence ao usuário
     const reminderDoc = await adminDb.collection("reminders").doc(reminderId).get();
     

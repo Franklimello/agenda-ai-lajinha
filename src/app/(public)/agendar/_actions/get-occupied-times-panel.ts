@@ -18,6 +18,10 @@ export async function getOccupiedTimesPanel({
       return [];
     }
 
+    if (!adminDb) {
+      return [];
+    }
+
     const userId = session.user.id;
 
     // Criar início e fim do dia (00:00:00 até 23:59:59)

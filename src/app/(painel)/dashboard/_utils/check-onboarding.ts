@@ -18,6 +18,14 @@ export async function checkOnboardingStatus(): Promise<OnboardingStatus | null> 
       return null;
     }
 
+    if (!adminDb) {
+      return {
+        hasActivePlan: false,
+        hasCompleteProfile: false,
+        nextStep: "plan",
+      };
+    }
+
     // Verificar se tem plano ativo
     const subscriptionDoc = await adminDb.collection("subscriptions")
       .where("userId", "==", session.user.id)

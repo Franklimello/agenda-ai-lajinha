@@ -343,6 +343,13 @@ export async function deleteAppointment(appointmentId: string) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o agendamento pertence ao usuário
     const appointmentDoc = await adminDb.collection("appointments").doc(appointmentId).get();
     
@@ -378,6 +385,14 @@ export async function getAppointments() {
       return {
         success: false,
         error: "Usuário não autenticado",
+        data: [],
+      };
+    }
+
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
         data: [],
       };
     }

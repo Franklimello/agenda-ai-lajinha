@@ -97,6 +97,13 @@ export async function updateService(data: UpdateServiceData) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o serviço pertence ao usuário
     const serviceDoc = await adminDb.collection("services").doc(data.id).get();
     

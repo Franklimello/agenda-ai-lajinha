@@ -25,6 +25,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: "Servidor não configurado corretamente" },
+        { status: 500 }
+      );
+    }
+
     const { plan } = await request.json();
 
     if (!plan || (plan !== "BASIC" && plan !== "PROFESSIONAL")) {

@@ -17,6 +17,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (!adminDb) {
+      return NextResponse.json(
+        { error: "Servidor não configurado corretamente" },
+        { status: 500 }
+      );
+    }
+
     const body = await request.text();
     const signature = request.headers.get("stripe-signature");
 

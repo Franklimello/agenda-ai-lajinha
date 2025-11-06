@@ -15,6 +15,10 @@ export async function hasActiveSubscription(): Promise<boolean> {
       return false;
     }
 
+    if (!adminDb) {
+      return false;
+    }
+
     const subscriptionDoc = await adminDb.collection("subscriptions")
       .where("userId", "==", session.user.id)
       .limit(1)

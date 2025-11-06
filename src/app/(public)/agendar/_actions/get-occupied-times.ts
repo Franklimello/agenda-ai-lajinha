@@ -13,6 +13,10 @@ export async function getOccupiedTimes({
   appointmentDate,
 }: GetOccupiedTimesParams) {
   try {
+    if (!adminDb) {
+      return [];
+    }
+
     // Criar início e fim do dia (00:00:00 até 23:59:59)
     const startOfDay = new Date(appointmentDate);
     startOfDay.setHours(0, 0, 0, 0);

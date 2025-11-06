@@ -17,6 +17,13 @@ export async function createPublicAppointment(
   data: CreatePublicAppointmentData
 ) {
   try {
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o serviço existe e está ativo
     const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
     
