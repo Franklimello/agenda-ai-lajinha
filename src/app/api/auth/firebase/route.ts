@@ -5,14 +5,18 @@ import { adminAuth } from "@/lib/firebase-auth";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("🔵 Iniciando autenticação Firebase...");
     const { token } = await request.json();
 
     if (!token) {
+      console.error("❌ Token não fornecido");
       return NextResponse.json(
         { error: "Token não fornecido" },
         { status: 400 }
       );
     }
+
+    console.log("✅ Token recebido, verificando Firebase Admin...");
 
     // Verificar se Firebase Admin está inicializado
     if (!adminAuth) {
@@ -22,6 +26,8 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log("✅ Firebase Admin está inicializado, verificando token...");
 
     // Verificar token
     const session = await getSessionFromToken(token);
@@ -34,11 +40,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("✅ Token válido, obtendo dados do usuário...");
+
     // Obter dados adicionais do usuário (apenas para email)
     const firebaseUser = await adminAuth.getUser(session.user.id);
+    console.log("✅ Dados do usuário obtidos:", { email: firebaseUser.email, uid: firebaseUser.uid });
     
     // Criar ou atualizar usuário no Firestore
     // NÃO salvar dados do Google (name, image) - profissional deve preencher manualmente
+    console.log("🔵 Tentando criar/atualizar usuário no Firestore...");
     try {
       await createOrUpdateUser(session.user.id, {
         email: firebaseUser.email, // Apenas email para identificação
@@ -46,13 +56,20 @@ export async function POST(request: NextRequest) {
         emailVerified: firebaseUser.emailVerified,
         createdAt: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
       });
+      console.log("✅ Usuário criado/atualizado no Firestore com sucesso");
     } catch (firestoreError: any) {
       // Se houver erro ao criar/atualizar no Firestore, logar mas não bloquear o login
       console.error("⚠️  Erro ao criar/atualizar usuário no Firestore, mas continuando com o login:", firestoreError);
+      console.error("⚠️  Detalhes do erro Firestore:", {
+        code: firestoreError?.code,
+        message: firestoreError?.message,
+        details: firestoreError?.details,
+      });
       // Continuar com o login mesmo se não conseguir salvar no Firestore
       // O usuário pode ser criado manualmente depois ou na próxima tentativa
     }
 
+    console.log("🔵 Salvando cookies...");
     // Salvar token no cookie
     const cookieStore = await cookies();
     cookieStore.set("firebase-token", token, {
@@ -70,21 +87,33 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 dias
     });
 
+    console.log("✅ Login concluído com sucesso!");
     return NextResponse.json({
       success: true,
       user: session.user,
     });
   } catch (error: any) {
-    console.error("❌ Erro ao autenticar:", error);
-    console.error("Detalhes do erro:", {
+    console.error("❌ ERRO CRÍTICO ao autenticar:", error);
+    console.error("❌ Tipo do erro:", typeof error);
+    console.error("❌ Detalhes completos do erro:", {
       message: error?.message,
       code: error?.code,
+      name: error?.name,
       stack: error?.stack,
+      details: error?.details,
+      cause: error?.cause,
     });
+    
+    // Log adicional para erros específicos
+    if (error?.code === 16 || error?.message?.includes("UNAUTHENTICATED")) {
+      console.error("❌ ERRO DE AUTENTICAÇÃO DO FIRESTORE - Verifique as permissões do Service Account");
+    }
+    
     return NextResponse.json(
       { 
         error: "Erro ao autenticar",
-        details: process.env.NODE_ENV === "development" ? error?.message : undefined
+        details: process.env.NODE_ENV === "development" ? error?.message : "Verifique os logs do servidor",
+        code: error?.code,
       },
       { status: 500 }
     );
