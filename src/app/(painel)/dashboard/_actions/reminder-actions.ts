@@ -186,7 +186,7 @@ export async function getReminders() {
             : null,
         };
       })
-      .sort((a, b) => {
+      .sort((a: any, b: any) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
         return dateB.getTime() - dateA.getTime(); // Descendente
