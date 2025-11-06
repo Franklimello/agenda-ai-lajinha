@@ -292,7 +292,7 @@ export function AppointmentsList({
                           às {appointment.time}
                         </div>
                         <div className="text-muted-foreground">
-                          {appointment.service.name}
+                          {appointment.service ? appointment.service.name : "Serviço removido"}
                         </div>
                       </div>
                     </div>
