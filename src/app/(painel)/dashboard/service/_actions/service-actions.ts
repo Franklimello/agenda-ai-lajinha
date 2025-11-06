@@ -165,6 +165,13 @@ export async function deleteService(serviceId: string) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o serviço pertence ao usuário
     const serviceDoc = await adminDb.collection("services").doc(serviceId).get();
     
@@ -200,6 +207,14 @@ export async function getServices() {
       return {
         success: false,
         error: "Usuário não autenticado",
+        data: [],
+      };
+    }
+
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
         data: [],
       };
     }

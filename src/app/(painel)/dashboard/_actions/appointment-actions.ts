@@ -3,7 +3,10 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
-import { calculateTimeSlots, isTimeSlotAvailable } from "@/app/(public)/agendar/_utils/time-slots";
+import {
+  calculateTimeSlots,
+  isTimeSlotAvailable,
+} from "@/app/(public)/agendar/_utils/time-slots";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 import type { Appointment } from "../_types";
 
@@ -39,23 +42,30 @@ export async function createAppointment(data: CreateAppointmentData) {
     }
 
     // Verificar se tem subscription ativa
-    const subscriptionDoc = await adminDb.collection("subscriptions")
+    const subscriptionDoc = await adminDb
+      .collection("subscriptions")
       .where("userId", "==", session.user.id)
       .limit(1)
       .get();
 
-    const subscription = subscriptionDoc.empty ? null : subscriptionDoc.docs[0].data();
-    
+    const subscription = subscriptionDoc.empty
+      ? null
+      : subscriptionDoc.docs[0].data();
+
     if (!subscription || subscription.status?.toLowerCase() !== "active") {
       return {
         success: false,
-        error: "Você precisa ter um plano ativo para criar agendamentos. Por favor, assine um plano primeiro.",
+        error:
+          "Você precisa ter um plano ativo para criar agendamentos. Por favor, assine um plano primeiro.",
       };
     }
 
     // Verificar se o serviço pertence ao usuário
-    const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
-    
+    const serviceDoc = await adminDb
+      .collection("services")
+      .doc(data.serviceId)
+      .get();
+
     if (!serviceDoc.exists || serviceDoc.data()?.userId !== session.user.id) {
       return {
         success: false,
@@ -67,20 +77,22 @@ export async function createAppointment(data: CreateAppointmentData) {
     const durationMinutes = serviceData.duration || 30;
 
     // Verificar data/hora passada
-    const appointmentDate = data.appointmentDate instanceof Date 
-      ? data.appointmentDate 
-      : new Date(data.appointmentDate);
-    
+    const appointmentDate =
+      data.appointmentDate instanceof Date
+        ? data.appointmentDate
+        : new Date(data.appointmentDate);
+
     // Criar data/hora completa do agendamento
     const [hours, minutes] = data.time.split(":").map(Number);
     const appointmentDateTime = new Date(appointmentDate);
     appointmentDateTime.setHours(hours, minutes, 0, 0);
-    
+
     const now = new Date();
     if (appointmentDateTime <= now) {
       return {
         success: false,
-        error: "Não é possível agendar em data/hora passada. Por favor, escolha uma data futura.",
+        error:
+          "Não é possível agendar em data/hora passada. Por favor, escolha uma data futura.",
       };
     }
 
@@ -92,54 +104,72 @@ export async function createAppointment(data: CreateAppointmentData) {
     );
 
     // Buscar todos os agendamentos do dia para verificar conflitos considerando duração
-    const existingAppointments = await adminDb.collection("appointments")
+    const existingAppointments = await adminDb
+      .collection("appointments")
       .where("userId", "==", session.user.id)
       .get();
 
     // Coletar todos os horários ocupados (considerando duração dos serviços)
     const occupiedTimesSet = new Set<string>();
-    
+
     for (const doc of existingAppointments.docs) {
       const docData = doc.data();
-      const docDate = docData.appointmentDate?.toDate 
-        ? docData.appointmentDate.toDate() 
+      const docDate = docData.appointmentDate?.toDate
+        ? docData.appointmentDate.toDate()
         : new Date(docData.appointmentDate);
-      
+
       // Comparar apenas a data (sem hora)
       const docDateOnly = new Date(
         docDate.getFullYear(),
         docDate.getMonth(),
         docDate.getDate()
       );
-      
+
       if (docDateOnly.getTime() === appointmentDateOnly.getTime()) {
         // Buscar duração do serviço deste agendamento
         let existingDuration = 30;
         if (docData.serviceId) {
-          const existingServiceDoc = await adminDb.collection("services").doc(docData.serviceId).get();
+          const existingServiceDoc = await adminDb
+            .collection("services")
+            .doc(docData.serviceId)
+            .get();
           if (existingServiceDoc.exists) {
             const existingServiceData = existingServiceDoc.data();
             existingDuration = existingServiceData?.duration || 30;
           }
         }
-        
+
         // Calcular todos os slots ocupados por este agendamento
-        const occupiedSlots = calculateTimeSlots(docData.time, existingDuration);
-        occupiedSlots.forEach(slot => occupiedTimesSet.add(slot));
+        const occupiedSlots = calculateTimeSlots(
+          docData.time,
+          existingDuration
+        );
+        occupiedSlots.forEach((slot) => occupiedTimesSet.add(slot));
       }
     }
 
     // Buscar horários disponíveis do profissional
-    const userDoc = await adminDb.collection("users").doc(session.user.id).get();
+    const userDoc = await adminDb
+      .collection("users")
+      .doc(session.user.id)
+      .get();
     const userData = userDoc.data();
     const availableTimes = userData?.times || [];
     const occupiedTimes = Array.from(occupiedTimesSet);
 
     // Verificar se o horário solicitado está disponível (considerando duração)
-    if (!isTimeSlotAvailable(data.time, durationMinutes, occupiedTimes, availableTimes)) {
+    if (
+      !isTimeSlotAvailable(
+        data.time,
+        durationMinutes,
+        occupiedTimes,
+        availableTimes
+      )
+    ) {
       return {
         success: false,
-        error: "Este horário não está disponível. O serviço requer mais tempo do que está livre. Por favor, escolha outro horário.",
+        error:
+          "Este horário não está disponível. O serviço requer mais tempo do que está livre. Por favor, escolha outro horário.",
       };
     }
 
@@ -158,13 +188,13 @@ export async function createAppointment(data: CreateAppointmentData) {
     await appointmentRef.set(appointmentData);
 
     revalidatePath("/dashboard");
-    
+
     return {
       success: true,
-      data: { 
-        id: appointmentRef.id, 
+      data: {
+        id: appointmentRef.id,
         ...appointmentData,
-        service: serviceData
+        service: serviceData,
       },
       message: "Agendamento criado com sucesso!",
     };
@@ -196,23 +226,34 @@ export async function updateAppointment(data: UpdateAppointmentData) {
     }
 
     // Verificar se o agendamento pertence ao usuário
-    const appointmentDoc = await adminDb.collection("appointments").doc(data.id).get();
-    
-    if (!appointmentDoc.exists || appointmentDoc.data()?.userId !== session.user.id) {
+    const appointmentDoc = await adminDb
+      .collection("appointments")
+      .doc(data.id)
+      .get();
+
+    if (
+      !appointmentDoc.exists ||
+      appointmentDoc.data()?.userId !== session.user.id
+    ) {
       return {
         success: false,
-        error: "Agendamento não encontrado ou você não tem permissão para editá-lo",
+        error:
+          "Agendamento não encontrado ou você não tem permissão para editá-lo",
       };
     }
 
-    const appointmentDate = data.appointmentDate instanceof Date 
-      ? data.appointmentDate 
-      : new Date(data.appointmentDate);
+    const appointmentDate =
+      data.appointmentDate instanceof Date
+        ? data.appointmentDate
+        : new Date(data.appointmentDate);
 
     // Buscar serviço para obter duração
-    const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
+    const serviceDoc = await adminDb
+      .collection("services")
+      .doc(data.serviceId)
+      .get();
     const serviceData = serviceDoc.exists ? serviceDoc.data() : null;
-    
+
     if (!serviceDoc.exists || !serviceData) {
       return {
         success: false,
@@ -226,12 +267,13 @@ export async function updateAppointment(data: UpdateAppointmentData) {
     const [hours, minutes] = data.time.split(":").map(Number);
     const appointmentDateTime = new Date(appointmentDate);
     appointmentDateTime.setHours(hours, minutes, 0, 0);
-    
+
     const now = new Date();
     if (appointmentDateTime <= now) {
       return {
         success: false,
-        error: "Não é possível agendar em data/hora passada. Por favor, escolha uma data futura.",
+        error:
+          "Não é possível agendar em data/hora passada. Por favor, escolha uma data futura.",
       };
     }
 
@@ -243,68 +285,89 @@ export async function updateAppointment(data: UpdateAppointmentData) {
     );
 
     // Buscar todos os agendamentos do dia para verificar conflitos considerando duração
-    const existingAppointments = await adminDb.collection("appointments")
+    const existingAppointments = await adminDb
+      .collection("appointments")
       .where("userId", "==", session.user.id)
       .get();
 
     // Coletar todos os horários ocupados (considerando duração dos serviços, exceto o próprio)
     const occupiedTimesSet = new Set<string>();
-    
+
     for (const doc of existingAppointments.docs) {
       // Pular o próprio agendamento
       if (doc.id === data.id) continue;
-      
+
       const docData = doc.data();
-      const docDate = docData.appointmentDate?.toDate 
-        ? docData.appointmentDate.toDate() 
+      const docDate = docData.appointmentDate?.toDate
+        ? docData.appointmentDate.toDate()
         : new Date(docData.appointmentDate);
-      
+
       // Comparar apenas a data (sem hora)
       const docDateOnly = new Date(
         docDate.getFullYear(),
         docDate.getMonth(),
         docDate.getDate()
       );
-      
+
       if (docDateOnly.getTime() === appointmentDateOnly.getTime()) {
         // Buscar duração do serviço deste agendamento
         let existingDuration = 30;
         if (docData.serviceId) {
-          const existingServiceDoc = await adminDb.collection("services").doc(docData.serviceId).get();
+          const existingServiceDoc = await adminDb
+            .collection("services")
+            .doc(docData.serviceId)
+            .get();
           if (existingServiceDoc.exists) {
             const existingServiceData = existingServiceDoc.data();
             existingDuration = existingServiceData?.duration || 30;
           }
         }
-        
+
         // Calcular todos os slots ocupados por este agendamento
-        const occupiedSlots = calculateTimeSlots(docData.time, existingDuration);
-        occupiedSlots.forEach(slot => occupiedTimesSet.add(slot));
+        const occupiedSlots = calculateTimeSlots(
+          docData.time,
+          existingDuration
+        );
+        occupiedSlots.forEach((slot) => occupiedTimesSet.add(slot));
       }
     }
 
     // Buscar horários disponíveis do profissional
-    const userDoc = await adminDb.collection("users").doc(session.user.id).get();
+    const userDoc = await adminDb
+      .collection("users")
+      .doc(session.user.id)
+      .get();
     const userData = userDoc.data();
     const availableTimes = userData?.times || [];
     const occupiedTimes = Array.from(occupiedTimesSet);
 
     // Verificar se o horário solicitado está disponível (considerando duração)
-    if (!isTimeSlotAvailable(data.time, durationMinutes, occupiedTimes, availableTimes)) {
+    if (
+      !isTimeSlotAvailable(
+        data.time,
+        durationMinutes,
+        occupiedTimes,
+        availableTimes
+      )
+    ) {
       return {
         success: false,
-        error: "Este horário não está disponível. O serviço requer mais tempo do que está livre. Por favor, escolha outro horário.",
+        error:
+          "Este horário não está disponível. O serviço requer mais tempo do que está livre. Por favor, escolha outro horário.",
       };
     }
 
-    await adminDb.collection("appointments").doc(data.id).update({
-      name: data.name,
-      email: data.email || "",
-      appointmentDate: appointmentDate,
-      time: data.time,
-      serviceId: data.serviceId,
-      updatedAt: new Date(),
-    });
+    await adminDb
+      .collection("appointments")
+      .doc(data.id)
+      .update({
+        name: data.name,
+        email: data.email || "",
+        appointmentDate: appointmentDate,
+        time: data.time,
+        serviceId: data.serviceId,
+        updatedAt: new Date(),
+      });
 
     const appointmentData = appointmentDoc.data();
     const updatedData = {
@@ -317,7 +380,7 @@ export async function updateAppointment(data: UpdateAppointmentData) {
     };
 
     revalidatePath("/dashboard");
-    
+
     return {
       success: true,
       data: updatedData,
@@ -351,19 +414,26 @@ export async function deleteAppointment(appointmentId: string) {
     }
 
     // Verificar se o agendamento pertence ao usuário
-    const appointmentDoc = await adminDb.collection("appointments").doc(appointmentId).get();
-    
-    if (!appointmentDoc.exists || appointmentDoc.data()?.userId !== session.user.id) {
+    const appointmentDoc = await adminDb
+      .collection("appointments")
+      .doc(appointmentId)
+      .get();
+
+    if (
+      !appointmentDoc.exists ||
+      appointmentDoc.data()?.userId !== session.user.id
+    ) {
       return {
         success: false,
-        error: "Agendamento não encontrado ou você não tem permissão para deletá-lo",
+        error:
+          "Agendamento não encontrado ou você não tem permissão para deletá-lo",
       };
     }
 
     await adminDb.collection("appointments").doc(appointmentId).delete();
 
     revalidatePath("/dashboard");
-    
+
     return {
       success: true,
       message: "Agendamento deletado com sucesso!",
@@ -397,54 +467,62 @@ export async function getAppointments() {
       };
     }
 
-    const appointmentsSnapshot = await adminDb.collection("appointments")
+    const appointmentsSnapshot = await adminDb
+      .collection("appointments")
       .where("userId", "==", session.user.id)
       .get();
 
     // Buscar serviços relacionados
-    const appointments: Appointment[] = (await Promise.all(
-      appointmentsSnapshot.docs.map(async (doc: QueryDocumentSnapshot): Promise<Appointment> => {
-        const data = doc.data();
-        const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
-        let service: Appointment['service'] = null;
-        if (serviceDoc.exists) {
-          const serviceData = serviceDoc.data();
-          service = {
-            id: serviceDoc.id,
-            name: serviceData?.name || "",
-            price: serviceData?.price || 0,
-            duration: serviceData?.duration || 30,
-            status: serviceData?.status ?? true,
-          };
-        }
-        
-        const appointmentDate = data.appointmentDate?.toDate 
-          ? data.appointmentDate.toDate() 
-          : new Date(data.appointmentDate || Date.now());
-        
-        return {
-          id: doc.id,
-          name: data.name || "",
-          email: data.email || "",
-          phone: data.phone || undefined,
-          appointmentDate: appointmentDate.toISOString(),
-          time: data.time || "",
-          serviceId: data.serviceId || "",
-          userId: data.userId || "",
-          createdAt: data.createdAt?.toDate 
-            ? data.createdAt.toDate().toISOString() 
-            : data.createdAt instanceof Date 
-            ? data.createdAt.toISOString()
-            : null,
-          updatedAt: data.updatedAt?.toDate 
-            ? data.updatedAt.toDate().toISOString() 
-            : data.updatedAt instanceof Date 
-            ? data.updatedAt.toISOString()
-            : null,
-          service: service,
-        };
-      })
-    )).sort((a: Appointment, b: Appointment) => {
+    const appointments: Appointment[] = (
+      await Promise.all(
+        appointmentsSnapshot.docs.map(
+          async (doc: QueryDocumentSnapshot): Promise<Appointment> => {
+            const data = doc.data();
+            const serviceDoc = await adminDb
+              .collection("services")
+              .doc(data.serviceId)
+              .get();
+            let service: Appointment["service"] = null;
+            if (serviceDoc.exists) {
+              const serviceData = serviceDoc.data();
+              service = {
+                id: serviceDoc.id,
+                name: serviceData?.name || "",
+                price: serviceData?.price || 0,
+                duration: serviceData?.duration || 30,
+                status: serviceData?.status ?? true,
+              };
+            }
+
+            const appointmentDate = data.appointmentDate?.toDate
+              ? data.appointmentDate.toDate()
+              : new Date(data.appointmentDate || Date.now());
+
+            return {
+              id: doc.id,
+              name: data.name || "",
+              email: data.email || "",
+              phone: data.phone || undefined,
+              appointmentDate: appointmentDate.toISOString(),
+              time: data.time || "",
+              serviceId: data.serviceId || "",
+              userId: data.userId || "",
+              createdAt: data.createdAt?.toDate
+                ? data.createdAt.toDate().toISOString()
+                : data.createdAt instanceof Date
+                ? data.createdAt.toISOString()
+                : null,
+              updatedAt: data.updatedAt?.toDate
+                ? data.updatedAt.toDate().toISOString()
+                : data.updatedAt instanceof Date
+                ? data.updatedAt.toISOString()
+                : null,
+              service: service,
+            };
+          }
+        )
+      )
+    ).sort((a: Appointment, b: Appointment) => {
       // Ordenar por data descendente (mais recentes primeiro)
       const dateA = new Date(a.appointmentDate);
       const dateB = new Date(b.appointmentDate);

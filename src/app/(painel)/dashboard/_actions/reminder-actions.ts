@@ -101,6 +101,13 @@ export async function updateReminder(data: UpdateReminderData) {
       };
     }
 
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se o lembrete pertence ao usuário
     const reminderDoc = await adminDb.collection("reminders").doc(data.id).get();
     
@@ -192,6 +199,14 @@ export async function getReminders() {
       return {
         success: false,
         error: "Usuário não autenticado",
+        data: [],
+      };
+    }
+
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
         data: [],
       };
     }

@@ -17,6 +17,10 @@ export async function getAvailableDates({
   availableTimes,
 }: GetAvailableDatesParams) {
   try {
+    if (!adminDb) {
+      return [];
+    }
+
     // Se não há horários configurados, retornar vazio
     if (availableTimes.length === 0) {
       return [];
