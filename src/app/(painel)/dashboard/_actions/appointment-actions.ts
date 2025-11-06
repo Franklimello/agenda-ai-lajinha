@@ -371,7 +371,7 @@ export async function getAppointments() {
 
     // Buscar serviços relacionados
     const appointments = (await Promise.all(
-      appointmentsSnapshot.docs.map(async (doc) => {
+      appointmentsSnapshot.docs.map(async (doc: any) => {
         const data = doc.data();
         const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
         let service = null;
