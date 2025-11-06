@@ -176,8 +176,14 @@ export function AppointmentsList({
                           às {appointment.time}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {appointment.service.name} - R${" "}
-                          {appointment.service.price.toFixed(2).replace(".", ",")}
+                          {appointment.service ? (
+                            <>
+                              {appointment.service.name} - R${" "}
+                              {appointment.service.price.toFixed(2).replace(".", ",")}
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">Serviço removido</span>
+                          )}
                         </div>
                       </div>
                     </div>
