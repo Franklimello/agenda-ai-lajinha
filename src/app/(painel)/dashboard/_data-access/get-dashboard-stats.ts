@@ -3,6 +3,7 @@
 import { adminDb } from "@/lib/firebase-auth";
 import { getSession } from "@/lib/getSession";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
+import type { DashboardAppointment } from "../_types";
 
 export async function getDashboardStats() {
   try {
@@ -31,9 +32,13 @@ export async function getDashboardStats() {
       .where("userId", "==", userId)
       .get();
 
-    const upcomingAppointments = (await Promise.all(
+    interface AppointmentWithDate extends Omit<DashboardAppointment, 'appointmentDate'> {
+      appointmentDate: Date; // Para ordenação interna
+    }
+
+    const upcomingAppointments: DashboardAppointment[] = (await Promise.all(
       upcomingAppointmentsSnapshot.docs
-        .map(async (doc: QueryDocumentSnapshot) => {
+        .map(async (doc: QueryDocumentSnapshot): Promise<AppointmentWithDate | null> => {
           const data = doc.data();
           const appointmentDate = data.appointmentDate?.toDate 
             ? data.appointmentDate.toDate() 
@@ -47,40 +52,36 @@ export async function getDashboardStats() {
             
             return {
               id: doc.id,
-              name: data.name,
+              name: data.name || "",
               email: data.email || "",
-              phone: data.phone || "",
+              phone: data.phone || undefined,
               appointmentDate: appointmentDate, // Manter como Date para ordenação
-              time: data.time,
-              serviceId: data.serviceId,
-              userId: data.userId,
+              time: data.time || "",
+              serviceId: data.serviceId || "",
+              userId: data.userId || "",
               service: serviceData ? {
                 id: serviceDoc.id,
-                name: serviceData.name,
-                price: serviceData.price,
-                duration: serviceData.duration,
-                status: serviceData.status,
+                name: serviceData.name || "",
+                price: serviceData.price || 0,
+                duration: serviceData.duration || 30,
+                status: serviceData.status ?? true,
               } : null,
             };
           }
           return null;
         })
     ))
-    .filter(Boolean)
-    .sort((a: any, b: any) => {
+    .filter((appointment): appointment is AppointmentWithDate => appointment !== null)
+    .sort((a: AppointmentWithDate, b: AppointmentWithDate) => {
       // Ordenar por data ascendente (mais próximos primeiro)
-      const dateA = a.appointmentDate instanceof Date ? a.appointmentDate : new Date(a.appointmentDate);
-      const dateB = b.appointmentDate instanceof Date ? b.appointmentDate : new Date(b.appointmentDate);
-      return dateA.getTime() - dateB.getTime();
+      return a.appointmentDate.getTime() - b.appointmentDate.getTime();
     })
-    .map((appointment: any) => ({
+    .map((appointment: AppointmentWithDate): DashboardAppointment => ({
       ...appointment,
       // Converter para ISO string apenas no final, antes de retornar
-      appointmentDate: appointment.appointmentDate instanceof Date 
-        ? appointment.appointmentDate.toISOString() 
-        : appointment.appointmentDate,
+      appointmentDate: appointment.appointmentDate.toISOString(),
     }))
-    .slice(0, 5) as any[];
+    .slice(0, 5);
 
     return {
       servicesCount: servicesSnapshot.size,

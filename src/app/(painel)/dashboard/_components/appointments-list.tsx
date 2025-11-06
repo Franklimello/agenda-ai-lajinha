@@ -213,9 +213,13 @@ export function AppointmentsList({
                           <AppointmentForm
                             services={services}
                             appointment={{
-                              ...appointment,
-                              serviceId: appointment.serviceId || appointment.service.id,
-                            }}
+                              id: appointment.id,
+                              name: appointment.name,
+                              email: appointment.email,
+                              appointmentDate: appointment.appointmentDate,
+                              time: appointment.time,
+                              serviceId: appointment.serviceId || (appointment.service?.id || ""),
+                            } as AppointmentForForm}
                             onSuccess={() => {
                               setEditingAppointment(null);
                               router.refresh();

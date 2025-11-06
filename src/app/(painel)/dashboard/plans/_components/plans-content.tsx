@@ -43,7 +43,7 @@ export function PlansContent({ subscription }: PlansContentProps) {
       } else {
         throw new Error("URL de checkout não retornada");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao assinar plano:", error);
       toast.error(error.message || "Erro ao processar pagamento. Tente novamente.");
       setIsLoading(false);

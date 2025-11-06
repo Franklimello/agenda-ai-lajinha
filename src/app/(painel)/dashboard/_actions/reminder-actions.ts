@@ -9,12 +9,13 @@ interface CreateReminderData {
   description: string;
 }
 
+// ReminderData será convertido para o tipo Reminder esperado pelo componente
 interface ReminderData {
   id: string;
   description: string;
   userId: string;
-  createdAt: string | null;
-  updatedAt: string | null;
+  createdAt: Date;
+  updatedAt: Date | null;
 }
 
 interface UpdateReminderData extends CreateReminderData {
@@ -179,31 +180,40 @@ export async function getReminders() {
     const reminders: ReminderData[] = remindersSnapshot.docs
       .map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
+        const createdAt = data.createdAt?.toDate 
+          ? data.createdAt.toDate() 
+          : data.createdAt instanceof Date 
+          ? data.createdAt
+          : new Date();
+        const updatedAt = data.updatedAt?.toDate 
+          ? data.updatedAt.toDate() 
+          : data.updatedAt instanceof Date 
+          ? data.updatedAt
+          : null;
         return {
           id: doc.id,
-          description: data.description,
-          userId: data.userId,
-          createdAt: data.createdAt?.toDate 
-            ? data.createdAt.toDate().toISOString() 
-            : data.createdAt instanceof Date 
-            ? data.createdAt.toISOString()
-            : null,
-          updatedAt: data.updatedAt?.toDate 
-            ? data.updatedAt.toDate().toISOString() 
-            : data.updatedAt instanceof Date 
-            ? data.updatedAt.toISOString()
-            : null,
+          description: data.description || "",
+          userId: data.userId || "",
+          createdAt,
+          updatedAt,
         };
       })
       .sort((a: ReminderData, b: ReminderData) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-        return dateB.getTime() - dateA.getTime(); // Descendente
+        return b.createdAt.getTime() - a.createdAt.getTime(); // Descendente
       });
+
+    // Converter ReminderData[] para Reminder[] (compatível com o componente)
+    const remindersForComponent: Reminder[] = reminders.map((r) => ({
+      id: r.id,
+      description: r.description,
+      userId: r.userId,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
 
     return {
       success: true,
-      data: reminders,
+      data: remindersForComponent,
     };
   } catch (error) {
     console.error("Erro ao buscar lembretes:", error);

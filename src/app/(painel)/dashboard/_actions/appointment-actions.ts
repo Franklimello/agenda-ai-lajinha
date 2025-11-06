@@ -5,6 +5,7 @@ import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
 import { calculateTimeSlots, isTimeSlotAvailable } from "@/app/(public)/agendar/_utils/time-slots";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
+import type { Appointment } from "../_types";
 
 interface CreateAppointmentData {
   name: string;
@@ -371,35 +372,35 @@ export async function getAppointments() {
       .get();
 
     // Buscar serviços relacionados
-    const appointments = (await Promise.all(
-      appointmentsSnapshot.docs.map(async (doc: QueryDocumentSnapshot) => {
+    const appointments: Appointment[] = (await Promise.all(
+      appointmentsSnapshot.docs.map(async (doc: QueryDocumentSnapshot): Promise<Appointment> => {
         const data = doc.data();
         const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
-        let service = null;
+        let service: Appointment['service'] = null;
         if (serviceDoc.exists) {
           const serviceData = serviceDoc.data();
           service = {
             id: serviceDoc.id,
-            name: serviceData.name,
-            price: serviceData.price,
-            duration: serviceData.duration,
-            status: serviceData.status,
+            name: serviceData?.name || "",
+            price: serviceData?.price || 0,
+            duration: serviceData?.duration || 30,
+            status: serviceData?.status ?? true,
           };
         }
         
         const appointmentDate = data.appointmentDate?.toDate 
           ? data.appointmentDate.toDate() 
-          : new Date(data.appointmentDate);
+          : new Date(data.appointmentDate || Date.now());
         
         return {
           id: doc.id,
-          name: data.name,
+          name: data.name || "",
           email: data.email || "",
-          phone: data.phone || "",
+          phone: data.phone || undefined,
           appointmentDate: appointmentDate.toISOString(),
-          time: data.time,
-          serviceId: data.serviceId,
-          userId: data.userId,
+          time: data.time || "",
+          serviceId: data.serviceId || "",
+          userId: data.userId || "",
           createdAt: data.createdAt?.toDate 
             ? data.createdAt.toDate().toISOString() 
             : data.createdAt instanceof Date 
@@ -413,7 +414,7 @@ export async function getAppointments() {
           service: service,
         };
       })
-    )).sort((a, b) => {
+    )).sort((a: Appointment, b: Appointment) => {
       // Ordenar por data descendente (mais recentes primeiro)
       const dateA = new Date(a.appointmentDate);
       const dateB = new Date(b.appointmentDate);

@@ -18,13 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-interface Reminder {
-  id: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { Reminder } from "../../_actions/reminder-actions";
 
 interface RemindersListProps {
   reminders: Reminder[];
