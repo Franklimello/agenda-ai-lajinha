@@ -46,28 +46,24 @@ export async function POST(request: NextRequest) {
     const firebaseUser = await adminAuth.getUser(session.user.id);
     console.log("✅ Dados do usuário obtidos:", { email: firebaseUser.email, uid: firebaseUser.uid });
     
-    // Criar ou atualizar usuário no Firestore
-    // NÃO salvar dados do Google (name, image) - profissional deve preencher manualmente
-    console.log("🔵 Tentando criar/atualizar usuário no Firestore...");
+    // TEMPORARIAMENTE DESABILITADO: Criar usuário no Firestore
+    // Vamos fazer o login funcionar primeiro, depois resolvemos o Firestore
+    // Isso evita que erros do Firestore bloqueiem o login
+    console.log("⚠️  Pulando criação de usuário no Firestore (temporário)");
+    
+    // TODO: Reativar quando as permissões do Firestore estiverem funcionando
+    /*
     try {
       await createOrUpdateUser(session.user.id, {
-        email: firebaseUser.email, // Apenas email para identificação
-        // name, image e outros campos devem ser preenchidos pelo profissional no perfil
+        email: firebaseUser.email,
         emailVerified: firebaseUser.emailVerified,
         createdAt: firebaseUser.metadata.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
       });
       console.log("✅ Usuário criado/atualizado no Firestore com sucesso");
     } catch (firestoreError: any) {
-      // Se houver erro ao criar/atualizar no Firestore, logar mas não bloquear o login
-      console.error("⚠️  Erro ao criar/atualizar usuário no Firestore, mas continuando com o login:", firestoreError);
-      console.error("⚠️  Detalhes do erro Firestore:", {
-        code: firestoreError?.code,
-        message: firestoreError?.message,
-        details: firestoreError?.details,
-      });
-      // Continuar com o login mesmo se não conseguir salvar no Firestore
-      // O usuário pode ser criado manualmente depois ou na próxima tentativa
+      console.error("⚠️  Erro ao criar/atualizar usuário no Firestore:", firestoreError);
     }
+    */
 
     console.log("🔵 Salvando cookies...");
     // Salvar token no cookie
