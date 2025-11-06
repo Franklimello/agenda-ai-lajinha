@@ -219,7 +219,7 @@ export function AppointmentsList({
                               appointmentDate: appointment.appointmentDate,
                               time: appointment.time,
                               serviceId: appointment.serviceId || (appointment.service?.id || ""),
-                            } as AppointmentForForm}
+                            } as AppointmentFormData}
                             onSuccess={() => {
                               setEditingAppointment(null);
                               router.refresh();
