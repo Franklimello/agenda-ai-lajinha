@@ -92,8 +92,8 @@ export function AppointmentForm({
     async function loadAvailableTimes() {
       try {
         const userData = await getUserData({});
-        if (userData?.times && Array.isArray(userData.times)) {
-          setAvailableTimes(userData.times);
+        if (userData && 'times' in userData && Array.isArray(userData.times)) {
+          setAvailableTimes(userData.times as string[]);
         }
       } catch (error) {
         console.error("Erro ao carregar horários disponíveis:", error);

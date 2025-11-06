@@ -75,8 +75,10 @@ export async function getUserData({userId}:GetUserDataProps = {}){
         return {
             id: userDoc.id,
             ...userDataSerialized,
-            subscription
-        };
+            subscription,
+            // Garantir que times está incluído
+            times: userData?.times || [],
+        } as any;
     } catch (error) {
         console.log(error)
         return null
