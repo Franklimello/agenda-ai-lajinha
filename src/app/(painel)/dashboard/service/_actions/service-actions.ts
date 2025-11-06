@@ -123,6 +123,14 @@ export async function updateService(data: UpdateServiceData) {
     });
 
     const serviceData = serviceDoc.data();
+    
+    if (!serviceData) {
+      return {
+        success: false,
+        error: "Erro ao obter dados do serviço",
+      };
+    }
+    
     const updatedService = {
       id: serviceDoc.id,
       name: data.name,
