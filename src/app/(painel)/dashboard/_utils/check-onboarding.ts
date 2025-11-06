@@ -2,7 +2,7 @@
 "use server";
 
 import { getSession } from "@/lib/getSession";
-import { adminDb } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
 
 export interface OnboardingStatus {
   hasActivePlan: boolean;

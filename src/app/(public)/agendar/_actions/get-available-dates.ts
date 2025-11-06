@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 interface GetAvailableDatesParams {

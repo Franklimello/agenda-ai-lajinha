@@ -1,6 +1,6 @@
 // Get Session - SIMPLIFICADO
 import { cookies } from "next/headers";
-import { verifyIdToken, getUserFromFirestore, adminDb } from "./firebase";
+import { verifyIdToken, getUserFromFirestore, adminDb } from "./firebase-admin";
 
 export async function getSession() {
   try {

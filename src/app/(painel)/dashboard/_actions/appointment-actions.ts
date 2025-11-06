@@ -1,6 +1,6 @@
 "use server";
 
-import { adminDb } from "@/lib/firebase";
+import { adminDb } from "@/lib/firebase-admin";
 import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
 import { calculateTimeSlots, isTimeSlotAvailable } from "@/app/(public)/agendar/_utils/time-slots";

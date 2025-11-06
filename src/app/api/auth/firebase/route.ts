@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifyIdToken, adminAuth, createOrUpdateUser } from "@/lib/firebase";
+import { verifyIdToken, adminAuth, createOrUpdateUser } from "@/lib/firebase-admin";
 
 export async function POST(request: NextRequest) {
   try {
