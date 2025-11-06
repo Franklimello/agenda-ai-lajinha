@@ -45,7 +45,8 @@ export function PlansContent({ subscription }: PlansContentProps) {
       }
     } catch (error) {
       console.error("Erro ao assinar plano:", error);
-      toast.error(error.message || "Erro ao processar pagamento. Tente novamente.");
+      const errorMessage = error instanceof Error ? error.message : "Erro ao processar pagamento. Tente novamente.";
+      toast.error(errorMessage);
       setIsLoading(false);
     }
   };
