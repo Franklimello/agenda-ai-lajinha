@@ -42,7 +42,7 @@ interface Appointment {
     name: string;
     price: number;
     duration: number;
-  };
+  } | null; // Pode ser null se o serviço foi deletado
 }
 
 interface Service {
@@ -228,7 +228,7 @@ export function AppointmentsList({
                               email: appointment.email,
                               appointmentDate: appointment.appointmentDate,
                               time: appointment.time,
-                              serviceId: appointment.serviceId || (appointment.service?.id || ""),
+                              serviceId: appointment.serviceId || (appointment.service ? appointment.service.id : ""),
                             } as AppointmentFormData}
                             onSuccess={() => {
                               setEditingAppointment(null);
