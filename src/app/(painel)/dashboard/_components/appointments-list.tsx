@@ -26,6 +26,7 @@ interface Appointment {
   phone?: string; // Telefone do cliente
   appointmentDate: string | Date; // Pode vir como string ISO do Firestore
   time: string;
+  serviceId?: string; // ID do serviço (para compatibilidade com AppointmentForm)
   service: {
     id: string;
     name: string;
@@ -211,7 +212,10 @@ export function AppointmentsList({
                           </DialogHeader>
                           <AppointmentForm
                             services={services}
-                            appointment={appointment}
+                            appointment={{
+                              ...appointment,
+                              serviceId: appointment.serviceId || appointment.service.id,
+                            }}
                             onSuccess={() => {
                               setEditingAppointment(null);
                               router.refresh();
