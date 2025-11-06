@@ -22,6 +22,15 @@ interface UpdateReminderData extends CreateReminderData {
   id: string;
 }
 
+// Tipo para retorno (compatível com o componente)
+interface Reminder {
+  id: string;
+  description: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+}
+
 export async function createReminder(data: CreateReminderData) {
   try {
     const session = await getSession();
