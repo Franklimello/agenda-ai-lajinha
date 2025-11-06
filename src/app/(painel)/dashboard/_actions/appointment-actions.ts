@@ -74,6 +74,12 @@ export async function createAppointment(data: CreateAppointmentData) {
     }
 
     const serviceData = serviceDoc.data();
+    if (!serviceData) {
+      return {
+        success: false,
+        error: "Serviço não encontrado",
+      };
+    }
     const durationMinutes = serviceData.duration || 30;
 
     // Verificar data/hora passada
