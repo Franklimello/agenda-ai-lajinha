@@ -53,6 +53,9 @@ export async function getDashboardStats() {
             : new Date(data.appointmentDate);
           
           if (appointmentDate >= now) {
+            if (!adminDb) {
+              return null;
+            }
             const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
             const serviceData = serviceDoc.exists ? serviceDoc.data() : null;
             
