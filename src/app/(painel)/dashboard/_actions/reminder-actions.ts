@@ -3,6 +3,7 @@
 import { adminDb } from "@/lib/firebase-auth";
 import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 interface CreateReminderData {
   description: string;
@@ -168,7 +169,7 @@ export async function getReminders() {
       .get();
 
     const reminders = remindersSnapshot.docs
-      .map((doc: any) => {
+      .map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         return {
           id: doc.id,
@@ -186,7 +187,7 @@ export async function getReminders() {
             : null,
         };
       })
-      .sort((a: any, b: any) => {
+      .sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
         return dateB.getTime() - dateA.getTime(); // Descendente

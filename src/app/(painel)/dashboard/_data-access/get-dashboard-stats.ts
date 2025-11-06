@@ -2,6 +2,7 @@
 
 import { adminDb } from "@/lib/firebase-auth";
 import { getSession } from "@/lib/getSession";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export async function getDashboardStats() {
   try {
@@ -32,7 +33,7 @@ export async function getDashboardStats() {
 
     const upcomingAppointments = (await Promise.all(
       upcomingAppointmentsSnapshot.docs
-        .map(async (doc: any) => {
+        .map(async (doc: QueryDocumentSnapshot) => {
           const data = doc.data();
           const appointmentDate = data.appointmentDate?.toDate 
             ? data.appointmentDate.toDate() 

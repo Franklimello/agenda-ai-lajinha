@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/firebase-auth";
 import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
 import { calculateTimeSlots, isTimeSlotAvailable } from "@/app/(public)/agendar/_utils/time-slots";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 interface CreateAppointmentData {
   name: string;
@@ -371,7 +372,7 @@ export async function getAppointments() {
 
     // Buscar serviços relacionados
     const appointments = (await Promise.all(
-      appointmentsSnapshot.docs.map(async (doc: any) => {
+      appointmentsSnapshot.docs.map(async (doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         const serviceDoc = await adminDb.collection("services").doc(data.serviceId).get();
         let service = null;
