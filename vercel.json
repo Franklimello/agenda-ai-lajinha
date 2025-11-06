@@ -4,6 +4,11 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["gru1"],
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
