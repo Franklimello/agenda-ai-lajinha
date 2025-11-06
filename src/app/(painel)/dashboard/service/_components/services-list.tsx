@@ -16,16 +16,7 @@ import { deleteService } from "../_actions/service-actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: number;
-  status: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import type { Service } from "../../_types";
 
 interface ServicesListProps {
   services: Service[];

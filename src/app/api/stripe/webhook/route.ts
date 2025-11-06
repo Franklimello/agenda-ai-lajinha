@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { adminDb } from "@/lib/firebase-auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-11-20.acacia",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
 
@@ -77,7 +75,13 @@ export async function POST(request: NextRequest) {
 
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = invoice.subscription;
+        // subscription pode ser string (ID) ou objeto Subscription expandido
+        const subscription = (invoice as any).subscription;
+        const subscriptionId = subscription 
+          ? typeof subscription === 'string' 
+            ? subscription 
+            : subscription.id
+          : null;
 
         if (subscriptionId && typeof subscriptionId === "string") {
           const subscription = await stripe.subscriptions.retrieve(
@@ -97,7 +101,12 @@ export async function POST(request: NextRequest) {
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
-        const subscriptionId = invoice.subscription;
+        const subscription = (invoice as any).subscription;
+        const subscriptionId = subscription 
+          ? typeof subscription === 'string' 
+            ? subscription 
+            : subscription.id
+          : null;
 
         if (subscriptionId && typeof subscriptionId === "string") {
           const subscription = await stripe.subscriptions.retrieve(

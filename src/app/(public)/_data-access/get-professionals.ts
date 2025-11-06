@@ -1,13 +1,14 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase-auth";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export async function getProfessionals() {
   try {
     // Buscar todos os usuários (vamos filtrar depois, pois status pode ser undefined)
     const usersSnapshot = await adminDb.collection("users").get();
 
-    const professionalsPromises = usersSnapshot.docs.map(async (doc) => {
+    const professionalsPromises = usersSnapshot.docs.map(async (doc: QueryDocumentSnapshot) => {
       const userData = doc.data();
       const userId = doc.id;
 
@@ -57,7 +58,7 @@ export async function getProfessionals() {
         return null;
       }
 
-      const services = servicesSnapshot.docs.map((serviceDoc) => {
+      const services = servicesSnapshot.docs.map((serviceDoc: QueryDocumentSnapshot) => {
         const serviceData = serviceDoc.data();
         // Retornar apenas os campos necessários, sem Timestamps
         return {

@@ -26,11 +26,9 @@ import { useState } from "react";
 
 const serviceSchema = z.object({
   name: z.string().min(1, { message: "O nome é obrigatório" }),
-  price: z.coerce
-    .number()
+  price: z.number()
     .min(0.01, { message: "O preço deve ser maior que zero" }),
-  duration: z.coerce
-    .number()
+  duration: z.number()
     .min(1, { message: "A duração deve ser de pelo menos 1 minuto" }),
   status: z.boolean(),
 });

@@ -3,6 +3,8 @@
 import { adminDb } from "@/lib/firebase-auth";
 import { getSession } from "@/lib/getSession";
 import { revalidatePath } from "next/cache";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
+import type { Service } from "../../_types";
 
 interface CreateServiceData {
   name: string;
@@ -192,32 +194,20 @@ export async function getServices() {
       .where("userId", "==", session.user.id)
       .get();
 
-    const services = servicesSnapshot.docs
-      .map((doc) => {
+    const services: Service[] = servicesSnapshot.docs
+      .map((doc: QueryDocumentSnapshot): Service => {
         const data = doc.data();
         return {
           id: doc.id,
-          name: data.name,
-          price: data.price,
-          duration: data.duration,
-          status: data.status,
-          userId: data.userId,
-          createdAt: data.createdAt?.toDate 
-            ? data.createdAt.toDate().toISOString() 
-            : data.createdAt instanceof Date 
-            ? data.createdAt.toISOString()
-            : null,
-          updatedAt: data.updatedAt?.toDate 
-            ? data.updatedAt.toDate().toISOString() 
-            : data.updatedAt instanceof Date 
-            ? data.updatedAt.toISOString()
-            : null,
+          name: data.name || "",
+          price: data.price || 0,
+          duration: data.duration || 30,
+          status: data.status ?? true,
         };
       })
-      .sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-        return dateB.getTime() - dateA.getTime(); // Descendente
+      .sort((a: Service, b: Service) => {
+        // Ordenar por ID (mais recentes primeiro, já que IDs são ordenados)
+        return b.id.localeCompare(a.id);
       });
 
     return {

@@ -1,0 +1,87 @@
+# 📋 VARIÁVEIS DE AMBIENTE PARA VERCEL
+# Copie e cole cada variável no Vercel Dashboard > Settings > Environment Variables
+# Marque todas as opções: Production, Preview, Development
+
+# ============================================
+# 🔥 FIREBASE CLIENT SDK
+# ============================================
+
+NEXT_PUBLIC_FIREBASE_API_KEY
+AIzaSyDZkm8gi4V_1BMdxR-uegqARttu3QsY1BQ
+
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+agendaailajinha.firebaseapp.com
+
+NEXT_PUBLIC_FIREBASE_PROJECT_ID
+agendaailajinha
+
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+agendaailajinha.firebasestorage.app
+
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+19208521391
+
+NEXT_PUBLIC_FIREBASE_APP_ID
+1:19208521391:web:1eaafba03f1bda4266765a
+
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+G-X8DBH900RJ
+
+# ============================================
+# 🔐 FIREBASE ADMIN SDK
+# ============================================
+
+FIREBASE_SERVICE_ACCOUNT
+{"type":"service_account","project_id":"agendaailajinha","private_key_id":"75780d5e783443f91a0e3f18ac0e2518421e638a","private_key":"-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCP8KdV/xEo7AWR\nIeDT4wAy9g0Zd/6cne1iCD/hI/irlZcL7OvB2xcBtEEQCpk2RFZpruYG8BP633Mx\nwPZ+4DKSMXAUQc3aXheRNAtUUr3ExJf88LVbjAoouoU0fbMALkWCxh7z5tfpztTw\nG5A1oR23RaFdBqsBgk+7dQNI6YezRYJUe2n5BaeL6/AZb/lvrvs1ZDEMcEVnAXQx\nVRZEbIkzlOBfxv5qJnWaarEPzk4LDtAWha4kwCuMDDQ+XnitHA6e3ZXLmEpZwoG4\neN/RyVmlIRv8mG+wUxQhU0NqQb59zWFamzgbKlaKNhcW3lEpEjuUjlFDRsnfaSDh\n25dvNUA1AgMBAAECggEAQl8iEgXc2EVI5dy8yodcQqNxc+KAXaB24uLR7dND6X6/\nWQjkxw1q5ObEr4xrjHnjbLTwrZdLZz1c5T7IisV/nCi+uSCEtuH3NQXOCZJjndVX\nDhPCVJXU42XqYUNq5DTx6XTItgemXNH6H0NeclQ6GxW46+fUt4vqjxJMMvU4FQHR\nob1ZIdJIf/w5O75YK9/dF6Ra3uFfdWh4ekEdXMNIEncV6rRaBY0bI5jIkpqW1ldy\n1ELjI5A0jB5c4Y8QnOMXkw7Yhu0segR4L347/h483DgEbh/G/Zs8sDXKiO63xWnV\nXl97jqvvw3RzcsoViuAqKzcPfkzpqD5ndjh21DnR6wKBgQDDWEc5+oRxfEZvhSQ+\nDqhDABtw6W5XnPvfJdlK3cXvAiwHfiTAER9a06MbeU276aFCIVL1+jsiM2no8d4L\nQ087Yi0KR2CcTun9kDrhn9HWbagdEkc6TuHkT644uBkmjfDdV2AXfeY1Z6Z7biTH\n8JrEXjO/NWdEZBY+0JeqtXHUhwKBgQC8okWsZhSWusuo3F+oRAqNmfd1l1JEroDT\nC3YsPO/HfLsyvSDhPoP81kY+B2peL1GL+lwNTbgubURGXFbdkN9aMWGMhbLCzL86\nP8wkcLqopubPAjRlf7eBRpEDcDYQwiysZvt9vz6pZt9D1aTRB0Amz85fQ/AmqjDk\n7xaaQWNwYwKBgQCqjG5TPldXxYqxXurPi3h4VqWepQ8DSznUD3VxGcLv81OBjy6C\nyfA4GkJzgCrP/yAdXn7R5xCtwXmcOV8FMlUAoax1JvBAR92e1ceyqRhJQB/gkc7C\nJ5CtBqwzNPgwYwiCFwD8QZ01zzLY3MccEQLuothG/lcUrNWHLhLcpeGmDQKBgQCt\n5OpWA8T3LzyQbpfAhvkzkLyPqvAsYLJh3C8UmRhyzonEPJYTD46dhus6Q5vLN9P1\nNtelbABezFwkgPuTRfqhKuTCpn4lFpszF50Z+tIYp8QfEek7qIGCq4sDoG43BMoq\nJMWzJpqdkDhCULGgAQ8iuG+HYxoAiuSIJ+CuU5lYAQKBgHuGzUwNtuRaaF4sxj0G\nMTFOKzQFOXNZGPDF2MdrwtFu1+5ShQ2PfJ8FyumhYSScvgQlcNAh3iFN16S82pyP\nE1tWZw1uKCZnyHkYjWSxsaUqXkQ7ufKC2CJyh2Xsg9sPr11MCy8yoJzEq65S9xHB\nwETbURpW6cOHV1PhoLyGpHkT\n-----END PRIVATE KEY-----\n","client_email":"firebase-adminsdk-fbsvc@agendaailajinha.iam.gserviceaccount.com","client_id":"111256836338191659895","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40agendaailajinha.iam.gserviceaccount.com","universe_domain":"googleapis.com"}
+
+# ============================================
+# 💳 STRIPE
+# ============================================
+
+STRIPE_SECRET_KEY
+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
+
+STRIPE_PUBLISHABLE_KEY
+pk_live_51SQJFWQ487P8PGjjqTv2dSIGRQPqc8is3UB9sZHRVZ5yiRCkFjJXIjLoVcS43DG4naGybVX1cUNj6SRRxzx6rccQ00BuhDlUIV
+
+STRIPE_PRICE_ID_PROFESSIONAL
+price_1SQJNnQ487P8PGjjTwViObtQ
+
+STRIPE_WEBHOOK_SECRET
+(ADICIONAR APÓS CONFIGURAR WEBHOOK NO STRIPE)
+
+# ============================================
+# 🌐 APP URL
+# ============================================
+
+NEXT_PUBLIC_APP_URL
+(ATUALIZAR APÓS PRIMEIRO DEPLOY - ex: https://agenda-ai-lajinha.vercel.app)
+
+# ============================================
+# 📝 INSTRUÇÕES
+# ============================================
+#
+# 1. No Vercel Dashboard, vá em Settings > Environment Variables
+# 2. Para cada variável acima:
+#    - Clique em "Add New"
+#    - Cole o NOME da variável (linha antes do valor)
+#    - Cole o VALOR da variável (linha após o nome)
+#    - Marque: Production, Preview, Development
+#    - Clique em "Save"
+#
+# 3. Para FIREBASE_SERVICE_ACCOUNT:
+#    - Cole o JSON completo em UMA LINHA (sem quebras)
+#    - O valor já está formatado corretamente acima
+#
+# 4. Para STRIPE_WEBHOOK_SECRET:
+#    - Configure o webhook no Stripe primeiro
+#    - Copie o "Signing secret" (começa com whsec_...)
+#    - Adicione aqui
+#
+# 5. Para NEXT_PUBLIC_APP_URL:
+#    - Após o primeiro deploy, copie a URL do Vercel
+#    - Atualize esta variável
+#    - Faça um novo deploy
+#
+# ============================================
+

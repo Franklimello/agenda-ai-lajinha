@@ -1,5 +1,18 @@
 // Firestore Database Helper
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, Timestamp, serverTimestamp } from "firebase/firestore";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  Timestamp, 
+  serverTimestamp 
+} from "firebase/firestore";
 import { app } from "./firebase";
 
 export const db = getFirestore(app);

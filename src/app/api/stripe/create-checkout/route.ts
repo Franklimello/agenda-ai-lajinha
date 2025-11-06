@@ -3,9 +3,7 @@ import Stripe from "stripe";
 import { getSession } from "@/lib/getSession";
 import { adminDb } from "@/lib/firebase-auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-11-20.acacia",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
 export async function POST(request: NextRequest) {
   try {

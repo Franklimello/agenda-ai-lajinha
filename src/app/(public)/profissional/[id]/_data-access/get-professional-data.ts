@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase-auth";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export async function getProfessionalData(userId: string) {
   try {
@@ -55,7 +56,7 @@ export async function getProfessionalData(userId: string) {
       return null;
     }
 
-    const services = servicesSnapshot.docs.map((doc) => {
+    const services = servicesSnapshot.docs.map((doc: QueryDocumentSnapshot) => {
       const serviceData = doc.data();
       // Retornar apenas os campos necessários, sem Timestamps
       return {

@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebase-auth";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 interface GetAvailableDatesParams {
   userId: string;
@@ -38,7 +39,7 @@ export async function getAvailableDates({
     // Agrupar agendamentos por data (chave: YYYY-MM-DD)
     const appointmentsByDate = new Map<string, Set<string>>();
     
-    appointmentsSnapshot.docs.forEach((doc) => {
+    appointmentsSnapshot.docs.forEach((doc: QueryDocumentSnapshot) => {
       const appointmentData = doc.data();
       const appointmentDate = appointmentData.appointmentDate?.toDate 
         ? appointmentData.appointmentDate.toDate() 
