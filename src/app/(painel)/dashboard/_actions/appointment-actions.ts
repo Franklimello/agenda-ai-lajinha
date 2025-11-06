@@ -484,6 +484,9 @@ export async function getAppointments() {
         appointmentsSnapshot.docs.map(
           async (doc: QueryDocumentSnapshot): Promise<Appointment> => {
             const data = doc.data();
+            if (!adminDb) {
+              throw new Error("Firebase Admin não inicializado");
+            }
             const serviceDoc = await adminDb
               .collection("services")
               .doc(data.serviceId)
