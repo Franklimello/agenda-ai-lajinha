@@ -30,6 +30,14 @@ export async function createAppointment(data: CreateAppointmentData) {
       };
     }
 
+    // Verificar se Firebase Admin está inicializado
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
+      };
+    }
+
     // Verificar se tem subscription ativa
     const subscriptionDoc = await adminDb.collection("subscriptions")
       .where("userId", "==", session.user.id)
@@ -177,6 +185,13 @@ export async function updateAppointment(data: UpdateAppointmentData) {
       return {
         success: false,
         error: "Usuário não autenticado",
+      };
+    }
+
+    if (!adminDb) {
+      return {
+        success: false,
+        error: "Servidor não configurado corretamente",
       };
     }
 

@@ -11,6 +11,10 @@ export async function getUserSubscription() {
       return null;
     }
 
+    if (!adminDb) {
+      return null;
+    }
+
     const subscriptionDoc = await adminDb.collection("subscriptions")
       .where("userId", "==", session.user.id)
       .limit(1)
