@@ -32,7 +32,7 @@ export async function getDashboardStats() {
 
     const upcomingAppointments = (await Promise.all(
       upcomingAppointmentsSnapshot.docs
-        .map(async (doc) => {
+        .map(async (doc: any) => {
           const data = doc.data();
           const appointmentDate = data.appointmentDate?.toDate 
             ? data.appointmentDate.toDate() 
