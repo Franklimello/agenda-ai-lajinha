@@ -30,6 +30,11 @@ export async function getUserData({userId}:GetUserDataProps = {}){
         }
         
         const userData = userDoc.data();
+        
+        if (!userData) {
+            return null;
+        }
+        
         const subscriptionDoc = await adminDb.collection("subscriptions")
             .where("userId", "==", userId)
             .limit(1)
@@ -77,7 +82,7 @@ export async function getUserData({userId}:GetUserDataProps = {}){
             ...userDataSerialized,
             subscription,
             // Garantir que times está incluído
-            times: userData?.times || [],
+            times: userData.times || [],
         } as any;
     } catch (error) {
         console.log(error)
