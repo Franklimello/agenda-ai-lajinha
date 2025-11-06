@@ -168,7 +168,7 @@ export async function getReminders() {
       .get();
 
     const reminders = remindersSnapshot.docs
-      .map((doc) => {
+      .map((doc: any) => {
         const data = doc.data();
         return {
           id: doc.id,
