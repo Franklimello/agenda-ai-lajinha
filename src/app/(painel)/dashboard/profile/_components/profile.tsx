@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ProfileFormData, useProfileForm } from "./profile-form";
 import { updateProfile } from "../_actions/update-profile";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useFirebaseSession } from "@/lib/use-firebase-session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,

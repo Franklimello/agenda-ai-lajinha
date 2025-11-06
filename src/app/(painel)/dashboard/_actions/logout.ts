@@ -10,10 +10,6 @@ export async function handleLogout() {
     cookieStore.delete("firebase-token");
     cookieStore.delete("firebase-user-id");
     
-    // Também deletar cookies do NextAuth (se existirem)
-    cookieStore.delete("next-auth.session-token");
-    cookieStore.delete("__Secure-next-auth.session-token");
-    
     // Redirecionar para home
     redirect("/");
   } catch (error) {

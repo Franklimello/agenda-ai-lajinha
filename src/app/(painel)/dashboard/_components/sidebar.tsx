@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useFirebaseSession } from "@/lib/use-firebase-session";
 import { handleLogout } from "../_actions/logout";
 import clsx from "clsx";
 import {
@@ -42,7 +42,7 @@ export function SidebarDashboar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session } = useSession();
+  const session = useFirebaseSession();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   async function onLogout() {

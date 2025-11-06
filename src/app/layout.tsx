@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SessionAuthProvider } from "@/components/session-ajth";
 import { FirebaseAuthProvider } from "@/components/firebase-auth-provider";
 import { Toaster } from "sonner";
 
@@ -30,11 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionAuthProvider>
-          <FirebaseAuthProvider>
-            {children}
-          </FirebaseAuthProvider>
-        </SessionAuthProvider>
+        <FirebaseAuthProvider>
+          {children}
+        </FirebaseAuthProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>
