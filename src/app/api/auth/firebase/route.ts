@@ -14,12 +14,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verificar se Firebase Admin está inicializado
+    if (!adminAuth) {
+      console.error("❌ Firebase Admin não está inicializado. Verifique FIREBASE_SERVICE_ACCOUNT.");
+      return NextResponse.json(
+        { error: "Servidor não configurado corretamente. Firebase Admin não inicializado." },
+        { status: 500 }
+      );
+    }
+
     // Verificar token
     const session = await getSessionFromToken(token);
     
     if (!session) {
+      console.error("❌ Token inválido ou expirado");
       return NextResponse.json(
-        { error: "Token inválido" },
+        { error: "Token inválido ou expirado" },
         { status: 401 }
       );
     }
@@ -57,10 +67,18 @@ export async function POST(request: NextRequest) {
       success: true,
       user: session.user,
     });
-  } catch (error) {
-    console.error("Erro ao autenticar:", error);
+  } catch (error: any) {
+    console.error("❌ Erro ao autenticar:", error);
+    console.error("Detalhes do erro:", {
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack,
+    });
     return NextResponse.json(
-      { error: "Erro ao autenticar" },
+      { 
+        error: "Erro ao autenticar",
+        details: process.env.NODE_ENV === "development" ? error?.message : undefined
+      },
       { status: 500 }
     );
   }

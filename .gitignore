@@ -38,6 +38,7 @@ next-env.d.ts
 # Firebase
 firebase-service-account.json
 firebase-service-account.*.json
+FIREBASE_SERVICE_ACCOUNT_VERCEL.txt
 
 # Firebase cache
 .firebase/

@@ -5,6 +5,12 @@ import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export async function getProfessionalData(userId: string) {
   try {
+    // Verificar se Firebase Admin está inicializado
+    if (!adminDb) {
+      console.error("❌ Firebase Admin não está inicializado. Verifique FIREBASE_SERVICE_ACCOUNT.");
+      return null;
+    }
+
     const userDoc = await adminDb.collection("users").doc(userId).get();
 
     if (!userDoc.exists) {

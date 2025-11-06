@@ -7,6 +7,12 @@ import type { DashboardAppointment } from "../_types";
 
 export async function getDashboardStats() {
   try {
+    // Verificar se Firebase Admin está inicializado
+    if (!adminDb) {
+      console.error("❌ Firebase Admin não está inicializado. Verifique FIREBASE_SERVICE_ACCOUNT.");
+      return null;
+    }
+
     const session = await getSession();
 
     if (!session?.user?.id) {

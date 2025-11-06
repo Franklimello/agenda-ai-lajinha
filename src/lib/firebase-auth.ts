@@ -8,30 +8,28 @@ import { existsSync, readFileSync } from "fs";
 
 // Initialize Firebase Admin if not already initialized
 if (getApps().length === 0) {
+  console.log("🔧 Iniciando inicialização do Firebase Admin...");
   let serviceAccount;
   
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    console.log("✅ FIREBASE_SERVICE_ACCOUNT encontrado na variável de ambiente");
     try {
       let cleanJson = process.env.FIREBASE_SERVICE_ACCOUNT.trim();
-      
-      // Remover caracteres de controle (exceto \n, \r, \t que são válidos em JSON)
-      // Caracteres de controle são 0x00-0x1F exceto os válidos
-      cleanJson = cleanJson.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+      console.log("📝 Primeiros 50 caracteres do JSON:", cleanJson.substring(0, 50));
       
       // Se o JSON está como string JSON (começa com "{")
       if (cleanJson.startsWith('{')) {
-        // Tentar parse direto
+        console.log("✅ JSON começa com '{', tentando parse direto...");
+        // Tentar parse direto primeiro
         try {
           serviceAccount = JSON.parse(cleanJson);
+          console.log("✅ Parse do JSON bem-sucedido!");
         } catch (e) {
-          // Se falhar, pode estar com escapes incorretos
-          // Tentar corrigir escapes comuns
-          cleanJson = cleanJson
-            .replace(/\\n/g, '\n')
-            .replace(/\\r/g, '\r')
-            .replace(/\\t/g, '\t')
-            .replace(/\\"/g, '"')
-            .replace(/\\\\/g, '\\');
+          console.error("❌ Erro no parse direto, tentando corrigir espaços...", e);
+          // Se falhar, pode estar com escapes incorretos na private_key
+          // A private_key já deve ter \n como caracteres reais, não como string "\\n"
+          // Tentar parse novamente (pode estar tudo certo mas com algum espaço extra)
+          cleanJson = cleanJson.replace(/\s+/g, ' ').trim();
           serviceAccount = JSON.parse(cleanJson);
         }
       } else {
@@ -41,14 +39,8 @@ if (getApps().length === 0) {
           cleanJson = JSON.parse(`"${cleanJson}"`); // Unescape da string
           serviceAccount = JSON.parse(cleanJson);
         } catch (e) {
-          // Última tentativa: tratar como string literal
-          cleanJson = cleanJson
-            .replace(/\\n/g, '\n')
-            .replace(/\\r/g, '\r')
-            .replace(/\\t/g, '\t')
-            .replace(/\\"/g, '"')
-            .replace(/\\\\/g, '\\');
-          serviceAccount = JSON.parse(cleanJson);
+          console.error("❌ Erro ao fazer parse do FIREBASE_SERVICE_ACCOUNT:", e);
+          serviceAccount = null;
         }
       }
     } catch (error) {
@@ -85,15 +77,33 @@ if (getApps().length === 0) {
 
   // Só inicializar se tiver serviceAccount válido
   if (serviceAccount && serviceAccount.private_key) {
-    initializeApp({
-      credential: cert(serviceAccount),
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "agendaailajinha",
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "agendaailajinha.firebasestorage.app",
-    });
+    console.log("✅ serviceAccount válido encontrado, inicializando Firebase Admin...");
+    console.log("📦 Project ID:", serviceAccount.project_id || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+    console.log("📦 Storage Bucket:", process.env.FIREBASE_STORAGE_BUCKET || "agendaailajinha.firebasestorage.app");
+    try {
+      initializeApp({
+        credential: cert(serviceAccount),
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "agendaailajinha",
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "agendaailajinha.firebasestorage.app",
+      });
+      console.log("✅ Firebase Admin inicializado com sucesso!");
+    } catch (error) {
+      console.error("❌ Erro ao inicializar Firebase Admin:", error);
+      console.error("❌ Detalhes do erro:", error instanceof Error ? error.message : String(error));
+    }
   } else {
     // Não inicializar - adminDb, adminAuth serão null
-    console.warn("⚠️  Firebase Admin NÃO inicializado. Adicione firebase-service-account.json");
+    console.error("❌ serviceAccount inválido ou sem private_key");
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      console.error("❌ FIREBASE_SERVICE_ACCOUNT configurado mas não foi possível fazer parse. Verifique o formato do JSON.");
+      console.error("❌ Primeiros 100 caracteres:", process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 100));
+      console.error("❌ serviceAccount:", serviceAccount ? "existe mas sem private_key" : "null");
+    } else {
+      console.warn("⚠️  FIREBASE_SERVICE_ACCOUNT não configurado. Firebase Admin não será inicializado.");
+    }
   }
+} else {
+  console.log("ℹ️  Firebase Admin já inicializado (getApps().length > 0)");
 }
 
 // Exportar apenas se Firebase estiver corretamente configurado
@@ -104,7 +114,9 @@ let adminBucket: any = null;
 
 try {
   const apps = getApps();
+  console.log("🔍 Verificando apps do Firebase Admin. Total de apps:", apps.length);
   if (apps.length > 0) {
+    console.log("✅ Apps encontrados, inicializando adminAuth, adminDb, adminStorage...");
     adminAuth = getAuth();
     adminDb = getFirestore();
     adminStorage = getStorage();
@@ -112,12 +124,15 @@ try {
     // Obter o bucket do storage
     const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || "agendaailajinha.firebasestorage.app";
     adminBucket = adminStorage.bucket(storageBucket);
+    console.log("✅ Firebase Admin exports inicializados com sucesso!");
+    console.log("📦 adminAuth:", adminAuth ? "✅" : "❌");
+    console.log("📦 adminDb:", adminDb ? "✅" : "❌");
   } else {
-    console.warn("⚠️  Firebase Admin não inicializado. Adicione firebase-service-account.json");
+    console.error("❌ Firebase Admin não inicializado. Nenhum app encontrado (apps.length = 0)");
   }
 } catch (error) {
-  console.warn("⚠️  Firebase Admin não inicializado corretamente. Adicione firebase-service-account.json");
-  console.warn("Erro:", error);
+  console.error("❌ Erro ao inicializar exports do Firebase Admin:", error);
+  console.error("❌ Detalhes:", error instanceof Error ? error.message : String(error));
 }
 
 export { adminAuth, adminDb, adminStorage, adminBucket };
@@ -126,7 +141,7 @@ export { adminAuth, adminDb, adminStorage, adminBucket };
 export async function getSessionFromToken(token: string, checkRevoked: boolean = false) {
   try {
     if (!adminAuth) {
-      console.error("Firebase Admin não está configurado");
+      console.error("❌ Firebase Admin não está configurado. Verifique FIREBASE_SERVICE_ACCOUNT.");
       return null;
     }
     
@@ -147,12 +162,15 @@ export async function getSessionFromToken(token: string, checkRevoked: boolean =
   } catch (error: any) {
     // Se o token expirou, tentar buscar dados do usuário no Firestore usando o UID do cookie
     if (error.code === 'auth/id-token-expired') {
-      console.warn("Token expirado. O cliente deve renovar o token automaticamente.");
+      console.warn("⚠️  Token expirado. O cliente deve renovar o token automaticamente.");
       // Retornar null para forçar o cliente a renovar
       // O hook de renovação automática vai cuidar disso
       return null;
     }
-    console.error("Erro ao verificar token:", error);
+    console.error("❌ Erro ao verificar token:", {
+      code: error?.code,
+      message: error?.message,
+    });
     return null;
   }
 }
